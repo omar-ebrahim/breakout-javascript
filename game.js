@@ -34,6 +34,8 @@ var brickPadding = 10;
 var brickOffsetTop = 30;
 var brickOffsetLeft = 30;
 
+var lives = 3;
+
 var score = 0;
 
 var bricks = [];
@@ -76,6 +78,12 @@ function drawScore() {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText("Score: " + score, 8, 20);
+}
+
+function drawLives() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
 }
 
 function drawBall() {
@@ -132,6 +140,13 @@ function keyUpHandler(e) {
     }
 }
 
+function mouseMoveHandler(e) {
+    var relativeX = e.clientX - canvas.offsetLeft;
+    if (relativeX > 0 && relativeX < canvas.width){
+        paddleX = relativeX - paddleWidth / 2; // will stop at half the width of the paddle
+    }
+}
+
 function collisionDetection() {
     for (var column = 0; column < brickColumnCount; column++) {
         for (var row = 0; row < brickRowCount; row++) {
@@ -154,6 +169,7 @@ function collisionDetection() {
 
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
+document.addEventListener('mousemove', mouseMoveHandler, false);
 
 var updateBallCoordinates = function () {
     currentX += stepX;
@@ -169,9 +185,19 @@ function draw() {
         if (collidesWithPaddle()) {
             stepY = -stepY;
         } else {
-            alert("GAME OVER!");
-            document.location.reload();
-            clearInterval(interval); // needed for Chrome
+            lives--;
+            if (lives == 0) {
+                alert("GAME OVER!");
+                document.location.reload();
+                clearInterval(interval); // needed for Chrome
+            } else {
+                // reset
+                currentX = canvas.width / 2;
+                currentY = canvas.height - 30;
+                stepX = 2;
+                stepY = -2;
+                paddleX = (canvas.width - paddleWidth) / 2
+            }
         }
     }
 
@@ -192,6 +218,7 @@ function draw() {
     drawBall();
     drawBricks();
     drawScore();
+    drawLives();
     drawPaddle();
     collisionDetection();
     updateBallCoordinates();
