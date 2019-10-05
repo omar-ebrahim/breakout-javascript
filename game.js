@@ -34,6 +34,8 @@ var brickPadding = 10;
 var brickOffsetTop = 30;
 var brickOffsetLeft = 30;
 
+var score = 0;
+
 var bricks = [];
 for (var column = 0; column < brickColumnCount; column++) {
     bricks[column] = [];
@@ -68,6 +70,12 @@ var collidesWithLeft = function () {
 
 var collidesWithPaddle = function () {
     return currentX > paddleX && currentX < paddleX + paddleWidth;
+}
+
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: " + score, 8, 20);
 }
 
 function drawBall() {
@@ -132,6 +140,12 @@ function collisionDetection() {
                 if (currentX > brick.x && currentX < brick.x + brickWidth && currentY > brick.y && currentY < brick.y + brickHeight) {
                     stepY = -stepY;
                     brick.status = 0;
+                    score++;
+                    if (score == brickColumnCount * brickRowCount) {
+                        alert("You win!");
+                        document.location.reload();
+                        clearInterval(interval);
+                    }
                 }
             }
         }
@@ -177,6 +191,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawBricks();
+    drawScore();
     drawPaddle();
     collisionDetection();
     updateBallCoordinates();
