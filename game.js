@@ -159,7 +159,6 @@ function collisionDetection() {
                     if (score == brickColumnCount * brickRowCount) {
                         alert("You win!");
                         document.location.reload();
-                        clearInterval(interval);
                     }
                 }
             }
@@ -189,7 +188,6 @@ function draw() {
             if (lives == 0) {
                 alert("GAME OVER!");
                 document.location.reload();
-                clearInterval(interval); // needed for Chrome
             } else {
                 // reset
                 currentX = canvas.width / 2;
@@ -222,7 +220,7 @@ function draw() {
     drawPaddle();
     collisionDetection();
     updateBallCoordinates();
+    requestAnimationFrame(draw);
 }
 
-// call the draw function every 10ms
-var interval = setInterval(draw, 10);
+draw();
