@@ -3,8 +3,8 @@ var canvas = document.getElementById('myCanvas');
 var ctx = canvas.getContext("2d");
 
 // Start coordinates
-var x = canvas.width / 2;
-var y = canvas.height - 30;
+var currentX = canvas.width / 2;
+var currentY = canvas.height - 30;
 
 // move coords
 var stepX = 2;
@@ -38,16 +38,16 @@ var bricks = [];
 for (var column = 0; column < brickColumnCount; column++) {
     bricks[column] = [];
     for (var row = 0; row < brickRowCount; row++) {
-        bricks[column][row] = { x: 0, y: 0 };
+        bricks[column][row] = { x: 0, y: 0, status: 1 };
     }
 }
 
 var nextStepY = function () {
-    return y + stepY;
+    return currentY + stepY;
 }
 
 var nextStepX = function () {
-    return x + stepX;
+    return currentX + stepX;
 }
 
 var collidesWithBottom = function () {
@@ -67,12 +67,12 @@ var collidesWithLeft = function () {
 }
 
 var collidesWithPaddle = function () {
-    return x > paddleX && x < paddleX + paddleWidth;
+    return currentX > paddleX && currentX < paddleX + paddleWidth;
 }
 
 function drawBall() {
     ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+    ctx.arc(currentX, currentY, ballRadius, 0, Math.PI * 2);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -89,17 +89,18 @@ function drawPaddle() {
 function drawBricks() {
     for (var column = 0; column < brickColumnCount; column++) {
         for (var row = 0; row < brickRowCount; row++) {
+            if (bricks[column][row].status == 1) {
+                var brickX = (column * (brickWidth + brickPadding)) + brickOffsetLeft;
+                var brickY = (row * (brickHeight + brickPadding)) + brickOffsetTop;
 
-            var brickX = (column * (brickWidth + brickPadding)) + brickOffsetLeft;
-            var brickY = (row * (brickHeight + brickPadding)) + brickOffsetTop;
-
-            bricks[column][row].x = brickX;
-            bricks[column][row].y = brickY;
-            ctx.beginPath();
-            ctx.rect(brickX, brickY, brickWidth, brickHeight);
-            ctx.fillStyle = "#0095DD";
-            ctx.fill();
-            ctx.closePath();
+                bricks[column][row].x = brickX;
+                bricks[column][row].y = brickY;
+                ctx.beginPath();
+                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
         }
     }
 }
@@ -123,12 +124,26 @@ function keyUpHandler(e) {
     }
 }
 
+function collisionDetection() {
+    for (var column = 0; column < brickColumnCount; column++) {
+        for (var row = 0; row < brickRowCount; row++) {
+            var brick = bricks[column][row];
+            if (brick.status == 1) {
+                if (currentX > brick.x && currentX < brick.x + brickWidth && currentY > brick.y && currentY < brick.y + brickHeight) {
+                    stepY = -stepY;
+                    brick.status = 0;
+                }
+            }
+        }
+    }
+}
+
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 
 var updateBallCoordinates = function () {
-    x += stepX;
-    y += stepY;
+    currentX += stepX;
+    currentY += stepY;
 }
 
 function draw() {
@@ -163,6 +178,7 @@ function draw() {
     drawBall();
     drawBricks();
     drawPaddle();
+    collisionDetection();
     updateBallCoordinates();
 }
 
