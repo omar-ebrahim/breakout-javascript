@@ -19,7 +19,7 @@ var bottomBallEdge = canvas.height - ballRadius;
 var rightBallEdge = canvas.width - ballRadius;
 
 var paddleStep = 7;
-var paddleHeight = 10;
+var paddleHeight = 20;
 var paddleWidth = 150;
 var paddleX = (canvas.width - paddleWidth) / 2;
 
@@ -71,7 +71,9 @@ var collidesWithLeft = function () {
 }
 
 var collidesWithPaddle = function () {
-    return currentX > paddleX && currentX < paddleX + paddleWidth;
+    return (currentX > paddleX) 
+        && (currentX < paddleX + paddleWidth) 
+        && ((nextStepY() > canvas.height - paddleHeight));
 }
 
 function drawScore() {
@@ -180,22 +182,20 @@ function draw() {
     // if it hits the top or bottom, reverse direction
     if (collidesWithTop()) {
         stepY = -stepY
-    } else if (collidesWithBottom()) {
-        if (collidesWithPaddle()) {
+    } else if (collidesWithPaddle()) {
             stepY = -stepY;
+    } else if (collidesWithBottom()) {
+        lives--;
+        if (lives == 0) {
+            alert("GAME OVER!");
+            document.location.reload();
         } else {
-            lives--;
-            if (lives == 0) {
-                alert("GAME OVER!");
-                document.location.reload();
-            } else {
-                // reset
-                currentX = canvas.width / 2;
-                currentY = canvas.height - 30;
-                stepX = 2;
-                stepY = -2;
-                paddleX = (canvas.width - paddleWidth) / 2
-            }
+            // reset
+            currentX = canvas.width / 2;
+            currentY = canvas.height - 30;
+            stepX = 2;
+            stepY = -2;
+            paddleX = (canvas.width - paddleWidth) / 2
         }
     }
 
